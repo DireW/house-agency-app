@@ -1,0 +1,20 @@
+{
+  "name": "wedding-comment",
+  "version": "8.3.0",
+  "description": "DireW练手",
+  "main": "app.js",
+  "dependencies": {
+    "@vant/weapp": "^1.5.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "弹幕",
+    "视频",
+    "婚礼"
+  ],
+  "author": "DireW",
+  "license": "ISC"
+}
