@@ -10,87 +10,87 @@ Page({
     code: '',
     loginErrorCount: 0
   },
-  onLoad: function(options) {
-    // 页面初始化 options为页面跳转所带来的参数
-    // 页面渲染完成
-
+  wechatUser: {},
+  onShow() {
+    this.wechatUser = {};
   },
-  onReady: function() {
-
+  wxLogin(e) {
+    if (!this.checkFormAvailable()) return;
+    if (e.detail.userInfo === undefined) {
+      app.globalData.hasLogin = false;
+      util.showErrorToast('微信登录失败');
+      return;
+    }
+    user.login()
+        .then(res => {
+          this.wechatUser = {
+            code: res.code,
+            ...e.detail.userInfo
+          };
+          this.loginWithWechatUser();
+        })
+        .catch(err => {
+        
+        })
   },
-  onShow: function() {
-    // 页面显示
+  loginWithWechatUser() {
+    const requestData = {
+      username: this.data.username,
+      password: this.data.password,
+      ...this.wechatUser
+    };
+    util.request(api.AuthLoginWithWechat, requestData, 'POST')
+        .then(res => {
+          this.loginSuccess(res.data);
+        })
+        .catch(err => {
+          util.showErrorToast(err);
+        })
   },
-  onHide: function() {
-    // 页面隐藏
-
-  },
-  onUnload: function() {
-    // 页面关闭
-
-  },
-  accountLogin: function() {
-    var that = this;
-
+  checkFormAvailable() {
     if (this.data.password.length < 1 || this.data.username.length < 1) {
-      wx.showModal({
-        title: '错误信息',
-        content: '请输入用户名和密码',
-        showCancel: false
-      });
+      util.showErrorToast('请输入用户名和密码');
       return false;
     }
-
-    wx.request({
-      url: api.AuthLoginByAccount,
-      data: {
-        username: that.data.username,
-        password: that.data.password
-      },
-      method: 'POST',
-      header: {
-        'content-type': 'application/json'
-      },
-      success: function(res) {
-        if (res.data.errno == 0) {
-          that.setData({
-            loginErrorCount: 0
-          });
-          app.globalData.hasLogin = true;
-          wx.setStorageSync('userInfo', res.data.data.userInfo);
-          wx.setStorage({
-            key: "token",
-            data: res.data.data.token,
-            success: function() {
-              wx.switchTab({
-                url: '/pages/ucenter/index/index'
-              });
-            }
-          });
-        } else {
-          that.setData({
-            loginErrorCount: that.data.loginErrorCount + 1
-          });
-          app.globalData.hasLogin = false;
-          util.showErrorToast('账户登录失败');
-        }
-      }
-    });
+    return true;
+  },
+  accountLogin: function() {
+    if (!this.checkFormAvailable()) return;
+    const requestData = {
+      username: this.data.username,
+      password: this.data.password
+    };
+    util.request(api.AuthLoginByAccount, requestData, 'POST')
+        .then(res => {
+          this.loginSuccess(res.data);
+        })
+        .catch(err => {
+          util.showErrorToast(err);
+        });
+  },
+  loginSuccess(responseData) {
+    const {token,userInfo} = responseData;
+    //存储用户信息
+    wx.setStorageSync(app.commonKeys.STORAGE_USER_INFO, userInfo);
+    wx.setStorageSync(app.commonKeys.STORAGE_TOKEN, token);
+    app.globalData.hasLogin = true;
+    // 获取应该回到的页面
+    const url = wx.getStorageSync(app.commonKeys.LAST_REDIRECT_URL);
+    wx.switchTab({
+      url
+    })
   },
   bindUsernameInput: function(e) {
-
     this.setData({
       username: e.detail.value
     });
   },
   bindPasswordInput: function(e) {
-
     this.setData({
       password: e.detail.value
     });
   },
   bindCodeInput: function(e) {
-
     this.setData({
       code: e.detail.value
     });
@@ -114,4 +114,4 @@ Page({
         break;
     }
   }
-})
+});

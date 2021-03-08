@@ -1,6 +1,7 @@
 var util = require('./utils/util.js');
 var api = require('./config/api.js');
 var user = require('./utils/user.js');
+const commonKeys = require('./utils/commonKeys.js');
 
 App({
   onLaunch: function() {
@@ -37,6 +38,7 @@ App({
     });
   },
   globalData: {
-    hasLogin: false
-  }
+    hasLogin: false,
+  },
+  commonKeys
 });

@@ -27,29 +27,13 @@ Page({
 
     //获取用户的登录信息
     if (app.globalData.hasLogin) {
-      let userInfo = wx.getStorageSync('userInfo');
+      let userInfo = wx.getStorageSync(app.commonKeys.STORAGE_USER_INFO);
+      console.info('show ui', userInfo);
       this.setData({
         userInfo: userInfo,
         hasLogin: true
       });
-
-      let that = this;
-      util.request(api.UserIndex).then(function(res) {
-        if (res.errno === 0) {
-          that.setData({
-            order: res.data.order
-          });
-        }
-      });
     }
-
-  },
-  onHide: function() {
-    // 页面隐藏
-
-  },
-  onUnload: function() {
-    // 页面关闭
   },
   goLogin() {
     if (!this.data.hasLogin) {

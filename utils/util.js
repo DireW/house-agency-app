@@ -5,12 +5,12 @@ function formatTime(date) {
   var year = date.getFullYear()
   var month = date.getMonth() + 1
   var day = date.getDate()
-
+  
   var hour = date.getHours()
   var minute = date.getMinutes()
   var second = date.getSeconds()
-
-
+  
+  
   return [year, month, day].map(formatNumber).join('-') + ' ' + [hour, minute, second].map(formatNumber).join(':')
 }
 
@@ -23,20 +23,19 @@ function formatNumber(n) {
  * 封封微信的的request
  */
 function request(url, data = {}, method = "GET") {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     wx.request({
       url: url,
       data: data,
       method: method,
       header: {
         'Content-Type': 'application/json',
-        'X-Litemall-Token': wx.getStorageSync('token')
+        'Authorization': wx.getStorageSync('token')
       },
-      success: function(res) {
-
-        if (res.statusCode == 200) {
-
-          if (res.data.errno == 501) {
+      success: function (res) {
+        if (res.statusCode === 200) {
+          const {code} = res.data;
+          if (code === 501) {
             // 清除登录相关内容
             try {
               wx.removeStorageSync('userInfo');
@@ -48,27 +47,33 @@ function request(url, data = {}, method = "GET") {
             wx.navigateTo({
               url: '/pages/auth/login/login'
             });
-          } else {
+          } else if (code === 500) {
+            reject(res.data.message || '后台异常')
+          } else if (code === 200) {
             resolve(res.data);
+          } else {
+            reject(res.data);
           }
         } else {
           reject(res.errMsg);
         }
-
+        
       },
-      fail: function(err) {
+      fail: function (err) {
         reject(err)
       }
     })
   });
 }
 
-function redirect(url) {
+const whiteList = [];
 
+function redirect(url) {
+  
   //判断页面是否需要登录
-  if (false) {
+  if (!whiteList.includes(url)) {
     wx.redirectTo({
-      url: '/pages/auth/login/login'
+      url: url
     });
     return false;
   } else {
@@ -79,10 +84,11 @@ function redirect(url) {
 }
 
 function showErrorToast(msg) {
-  wx.showToast({
-    title: msg,
-    image: '/static/images/icon_error.png'
-  })
+  wx.showModal({
+    title: '错误信息',
+    content: msg,
+    showCancel: false
+  });
 }
 
 module.exports = {
@@ -90,4 +96,4 @@ module.exports = {
   request,
   redirect,
   showErrorToast
-}
+};

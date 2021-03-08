@@ -1,6 +1,6 @@
 // 以下是业务服务器API地址
 // 本机开发时使用
-var WxApiRoot = 'http://localhost:9080/wechat/';
+var WxApiRoot = 'http://localhost:8080/wechat/';
 // 云平台上线时使用
 // var WxApiRoot = 'https://www.direw1025.com/wechat/';
 
@@ -11,8 +11,9 @@ module.exports = {
   CatalogList: WxApiRoot + 'catalog/index', //分类目录全部分类数据接口
   CatalogCurrent: WxApiRoot + 'catalog/current', //分类目录当前分类数据接口
 
-  AuthLoginByWeixin: WxApiRoot + 'auth/login_by_weixin', //微信登录
-  AuthLoginByAccount: WxApiRoot + 'login', //账号登录
+  AuthLoginWithWechat: WxApiRoot + 'auth/login-wechat', //微信登录，携带微信用户信息
+  AuthLoginByAccount: WxApiRoot + 'auth/login-account', // 账号登录
+  AutoLoginByCode: WxApiRoot + 'auth/login-code', // 使用code获取openid之后尝试登陆
   AuthLogout: WxApiRoot + 'auth/logout', //账号登出
   AuthRegister: WxApiRoot + 'auth/register', //账号注册
   AuthReset: WxApiRoot + 'auth/reset', //账号密码重置
